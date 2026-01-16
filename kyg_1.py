@@ -4,23 +4,32 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import platform
+import matplotlib.font_manager as fm
+import os
 
-# ---------- 한글 폰트 설정 시작 ---------- #
-from matplotlib import font_manager, rc
+# ---------- Streamlit Cloud용 한글 폰트 설정 ---------- #
+@st.cache_resource
+def install_fonts():
+    # 리눅스 서버에 나눔폰트가 설치되는 경로입니다.
+    font_path = '/usr/share/fonts/truetype/nanum/NanumGothic.ttf'
+    if os.path.exists(font_path):
+        return fm.FontProperties(fname=font_path).get_name()
+    return None
 
-# 운영체제별 폰트 경로 설정
-if platform.system() == 'Windows':
-    # 윈도우의 경우 '맑은 고딕' 설정
-    font_path = "C:/Windows/Fonts/malgun.ttf"
-    font_name = font_manager.FontProperties(fname=font_path).get_name()
-    rc('font', family=font_name)
-elif platform.system() == 'Darwin': # Mac
-    # 맥의 경우 'AppleGothic' 설정
-    rc('font', family='AppleGothic')
+font_name = install_fonts()
 
-# 마이너스 기호(-)가 깨지는 현상 방지
-plt.rcParams['axes.unicode_minus'] = False
-# ---------- 한글 폰트 설정 끝 ---------- #
+if font_name:
+    plt.rc('font', family=font_name)
+else:
+    # 로컬(윈도우/맥) 환경용 설정
+    import platform
+    if platform.system() == 'Windows':
+        plt.rc('font', family='Malgun Gothic')
+    elif platform.system() == 'Darwin':
+        plt.rc('font', family='AppleGothic')
+
+plt.rcParams['axes.unicode_minus'] = False # 마이너스 기호 깨짐 방지
+# -------------------------------------------------- #
 
 st.title("📊 국세청 근로소득 데이터 분석기")
 
